@@ -1,6 +1,20 @@
 {
   "name": "@cwa-dou/telekit-mcp",
   "version": "0.0.0",
+  "description": "Local stdio MCP server to send Telegram messages with telekit.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "telegram",
+    "telekit"
+  ],
+  "homepage": "https://github.com/anhtudo97/telekit#readme",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anhtudo97/telekit.git",
+    "directory": "packages/local-mcp"
+  },
   "bin": {
     "telekit-mcp": "./dist/index.js"
   },
@@ -29,5 +43,8 @@
     "@cwa-dou/telekit-core": "^0.0.0",
     "@modelcontextprotocol/sdk": "^1.32.2",
     "zod": "^4.6.7"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

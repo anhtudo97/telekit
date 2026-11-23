@@ -28,7 +28,7 @@ Local [MCP](https://modelcontextprotocol.io) server (stdio) that lets AI clients
 claude mcp add telekit --env TELEGRAM_BOT_TOKEN=<token> -- npx -y @cwa-dou/telekit-mcp
 ```
 
-Requires Node.js >= 18. Keep the token out of version control.
+Requires Node.js >= 20. Keep the token out of version control.
 
 ## Tools
 

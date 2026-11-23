@@ -1,6 +1,20 @@
 {
   "name": "@cwa-dou/telekit",
   "version": "0.0.0",
+  "description": "CLI to send Telegram messages with telekit.",
+  "keywords": [
+    "cli",
+    "notifications",
+    "telegram",
+    "telekit"
+  ],
+  "homepage": "https://github.com/anhtudo97/telekit#readme",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anhtudo97/telekit.git",
+    "directory": "packages/cli"
+  },
   "bin": {
     "telekit": "./dist/index.js"
   },
@@ -17,7 +31,7 @@
     "prepublishOnly": "bun run build"
   },
   "dependencies": {
-    "@cwa-dou/telekit-core": "workspace:^",
+    "@cwa-dou/telekit-core": "^0.0.0",
     "commander": "^15.0.0",
     "zod": "^4.6.7"
   },

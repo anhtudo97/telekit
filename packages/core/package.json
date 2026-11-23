@@ -1,6 +1,19 @@
 {
   "name": "@cwa-dou/telekit-core",
   "version": "0.0.0",
+  "description": "Shared schemas and operations for telekit (send Telegram messages).",
+  "keywords": [
+    "notifications",
+    "telegram",
+    "telekit"
+  ],
+  "homepage": "https://github.com/anhtudo97/telekit#readme",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anhtudo97/telekit.git",
+    "directory": "packages/core"
+  },
   "files": [
     "dist"
   ],
@@ -24,5 +37,8 @@
   },
   "dependencies": {
     "zod": "^4.6.7"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
