@@ -31,22 +31,23 @@ Bot token is NOT an input. Never ask the user to paste it in chat and never put 
 
 ## MCP vs CLI: Choose
 
-| Situation                                                 | Use                  |
-| --------------------------------------------------------- | -------------------- |
-| telekit `telegram` MCP tool is listed/callable            | MCP (default)        |
-| MCP server not configured, failed to connect, or no tool  | CLI fallback         |
-| MCP errors `TELEGRAM_BOT_TOKEN is required`               | CLI (if `init` done) |
-| Shell script, CI, or manual verification outside an agent | CLI                  |
+| Situation                                                 | Use                |
+| --------------------------------------------------------- | ------------------ |
+| telekit `telegram` MCP tool is listed/callable            | MCP (default)      |
+| MCP server not configured, failed to connect, or no tool  | CLI fallback       |
+| MCP errors `TELEGRAM_BOT_TOKEN is required`               | CLI (if token set) |
+| Shell script, CI, or manual verification outside an agent | CLI                |
 
 - **MCP** (`@cwa-dou/telekit-mcp`, bin `telekit-mcp`): stdio server, token from env `TELEGRAM_BOT_TOKEN` set in the MCP client config
-- **CLI** (`@cwa-dou/telekit`, bin `telekit`): token from a local config file written by `telekit init`
+- **CLI** (`@cwa-dou/telekit`, bin `telekit`, Node >= 22.12): token from env `TELEGRAM_BOT_TOKEN` (wins) or a local config file written by `telekit init`
 
 ## CLI Fallback
 
-Setup is done by the USER in their own terminal (the token is a CLI argument, so it would land in the transcript and shell history if the agent ran it). The agent never runs `init`:
+Token setup is done by the USER in their own terminal, so the secret never lands in the transcript or shell history. The agent never runs `init` or handles the token. Either:
 
 ```bash
-telekit init --telegram-bot-token <token>
+export TELEGRAM_BOT_TOKEN=<token>      # per shell / CI
+echo "<token>" | telekit init          # or save it to the local config (stdin keeps it out of history)
 ```
 
 Send (agent):
@@ -79,17 +80,18 @@ Only when working inside the telekit monorepo (use `bun`/`bunx`, never npm/npx):
 
 ## Troubleshooting
 
-| Error / symptom                                    | Cause → fix                                                            |
-| -------------------------------------------------- | ---------------------------------------------------------------------- |
-| `Telegram bot token is required. Run telekit init` | CLI config missing → user runs `telekit init --telegram-bot-token <t>` |
-| `TELEGRAM_BOT_TOKEN is required`                   | MCP env missing → user adds it to MCP client config, restarts server   |
-| `Unauthorized`                                     | Token wrong or revoked → user checks/regenerates it with @BotFather    |
-| Message/Chat ID "is required" (zod issue)          | Empty input → supply non-empty values                                  |
-| Telegram `chat not found` / `Forbidden`            | Wrong chat ID, or user never started the bot → user messages bot first |
-| `Too Many Requests: retry after N`                 | Rate limited (429) → wait N seconds, do not loop                       |
-| `unknown option '...'` (CLI)                       | Message/ID parsed as a flag → add `--` before arguments                |
-| `telekit: command not found`                       | CLI not installed → `npm i -g @cwa-dou/telekit` or use `npx` form      |
-| MCP server failed to connect                       | Report to user; use CLI fallback meanwhile                             |
+| Error / symptom                                                              | Cause → fix                                                               |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `Telegram bot token is required. Set TELEGRAM_BOT_TOKEN or run telekit init` | CLI token missing → user sets the env var or pipes it into `telekit init` |
+| `Invalid config at <path>` (CLI)                                             | Config file corrupt → user fixes it or re-runs `telekit init`             |
+| `TELEGRAM_BOT_TOKEN is required`                                             | MCP env missing → user adds it to MCP client config, restarts server      |
+| `Unauthorized`                                                               | Token wrong or revoked → user checks/regenerates it with @BotFather       |
+| Message/Chat ID "is required" (zod issue)                                    | Empty input → supply non-empty values                                     |
+| Telegram `chat not found` / `Forbidden`                                      | Wrong chat ID, or user never started the bot → user messages bot first    |
+| `Too Many Requests: retry after N`                                           | Rate limited (429) → wait N seconds, do not loop                          |
+| `unknown option '...'` (CLI)                                                 | Message/ID parsed as a flag → add `--` before arguments                   |
+| `telekit: command not found`                                                 | CLI not installed → `npm i -g @cwa-dou/telekit` or use `npx` form         |
+| MCP server failed to connect                                                 | Report to user; use CLI fallback meanwhile                                |
 
 Find a chat ID: user messages the bot, then opens `https://api.telegram.org/bot<token>/getUpdates` and reads `message.chat.id`. Do this only on the user's request; the URL contains the token, so never paste it back.
 

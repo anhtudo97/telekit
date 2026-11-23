@@ -1,58 +1,56 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { z } from "zod";
-import { homedir } from "node:os";
-import { dirname, join } from "node:path";
+import { text } from "node:stream/consumers";
 import { sendTelegramMessage } from "@cwa-dou/telekit-core";
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  getDefaultConfigPath,
+  readTelegramBotToken,
+  writeTelegramBotToken,
+} from "./cli-config-store";
 
 const program = new Command();
-const configPath = join(homedir(), ".config", "telekit", "config.json");
-const cliConfigSchema = z.object({
-  telegramBotToken: z.string().min(1).optional(),
-});
 
-function writeTelegramBotToken(token: string) {
-  mkdirSync(dirname(configPath), { recursive: true });
-  writeFileSync(configPath, `${JSON.stringify({ telegramBotToken: token }, null, 2)}\n`, {
-    mode: 0o600,
-  });
-}
-
-function getTelegramBotToken() {
-  if (!existsSync(configPath)) {
-    throw new Error("Telegram bot token is required. Run `telekit init`.");
-  }
-
-  const config = cliConfigSchema.parse(JSON.parse(readFileSync(configPath, "utf8")));
-  const token = config.telegramBotToken;
-
-  if (!token) {
-    throw new Error("Telegram bot token is required. Run `telekit init`.");
-  }
-
-  return token;
+/** Token piped on stdin (`echo $TOKEN | telekit init`); undefined when stdin is a terminal. */
+async function readTokenFromStdin() {
+  if (process.stdin.isTTY) return undefined;
+  return text(process.stdin);
 }
 
 program.name("telekit").description("TeleKit CLI backed by @cwa-dou/telekit-core");
 
 program
   .command("init")
-  .description("Configure TeleKit CLI local settings")
-  .requiredOption("--telegram-bot-token <botToken>", "Telegram bot token")
-  .action(async (options: { telegramBotToken: string }) => {
-    writeTelegramBotToken(options.telegramBotToken);
-    console.log(`Saved TeleKit CLI config to ${configPath}`);
+  .description("Save the Telegram bot token to local config")
+  .option(
+    "--telegram-bot-token <botToken>",
+    "Telegram bot token (visible in shell history; prefer TELEGRAM_BOT_TOKEN env or stdin)",
+  )
+  .action(async (options: { telegramBotToken?: string }) => {
+    const token = (
+      options.telegramBotToken ||
+      process.env.TELEGRAM_BOT_TOKEN ||
+      (await readTokenFromStdin()) ||
+      ""
+    ).trim();
+
+    if (!token) {
+      throw new Error(
+        "Telegram bot token is required. Pass --telegram-bot-token, set TELEGRAM_BOT_TOKEN, or pipe it on stdin.",
+      );
+    }
+
+    writeTelegramBotToken(token);
+    console.log(`Saved TeleKit CLI config to ${getDefaultConfigPath()}`);
   });
 
 program
   .command("telegram")
-  .description("Send a Telegram message")
+  .description("Send a Telegram message (use `--` before args if the message starts with `-`)")
   .argument("<chatId>", "Telegram chat ID")
   .argument("<message>", "Message text to send")
   .action(async (chatId: string, message: string) => {
     const result = await sendTelegramMessage({
-      botToken: getTelegramBotToken(),
+      botToken: readTelegramBotToken(),
       chatId,
       message,
     });
