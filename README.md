@@ -32,16 +32,19 @@ Environment variables (see [.env.example](.env.example)):
 .
 ├── packages/
 │   ├── core/         # @cwa-dou/telekit-core: zod schemas + operations (sendTelegramMessage)
-│   ├── cli/          # @cwa-dou/telekit: CLI (commander)
+│   ├── cli/          # @cwa-dou/telekit: CLI (commander; src/helps.ts = config/token helpers)
 │   └── local-mcp/    # @cwa-dou/telekit-mcp: stdio MCP server
 ├── apps/
 │   └── remote-mcp/   # Hono HTTP MCP server, protected by Clerk OAuth
+├── skills/
+│   └── telekit/      # agent skill (SKILL.md): send Telegram messages via telekit MCP/CLI
 ├── .github/workflows/ci.yml  # format check + typecheck
 ├── .husky/           # git hooks (commit-msg -> commitlint)
 ├── .vscode/          # shared editor settings + recommended extensions
 ├── commitlint.config.mjs
 ├── .oxlintrc.json    # oxlint config
 ├── .oxfmtrc.json     # oxfmt config
+├── LICENSE           # ISC
 └── tsconfig.json
 ```
 
@@ -107,6 +110,12 @@ bun run dev:remote
 - `POST /:botToken/mcp` - MCP endpoint (stateless Streamable HTTP); needs a Clerk OAuth bearer token
 - `GET /.well-known/oauth-protected-resource/:botToken/mcp` - OAuth protected resource metadata
 
+### Agent skill
+
+[skills/telekit/SKILL.md](skills/telekit/SKILL.md) teaches an agent to send Telegram messages
+through telekit: prefer the MCP tool `telegram`, fall back to `telekit telegram <chatId> "<message>"`.
+Inputs: `chatId` (numeric ID or `@channelusername`) and `message` (plain text, max 4096 chars).
+
 ## Scripts
 
 | Command                                       | Description                                                |
@@ -159,3 +168,7 @@ Allowed types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `buil
 
 Open the project in VS Code and install the recommended extensions
 (Oxc, EditorConfig, Bun). Format and oxlint fixes run on save.
+
+## License
+
+[ISC](LICENSE). Each published package ships its own copy.

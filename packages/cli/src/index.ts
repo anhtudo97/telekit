@@ -6,7 +6,7 @@ import {
   getDefaultConfigPath,
   readTelegramBotToken,
   writeTelegramBotToken,
-} from "./cli-config-store";
+} from "./helps";
 
 const program = new Command();
 
@@ -16,7 +16,9 @@ async function readTokenFromStdin() {
   return text(process.stdin);
 }
 
-program.name("telekit").description("TeleKit CLI backed by @cwa-dou/telekit-core");
+program
+  .name("telekit")
+  .description("TeleKit CLI backed by @cwa-dou/telekit-core");
 
 program
   .command("init")
@@ -45,7 +47,9 @@ program
 
 program
   .command("telegram")
-  .description("Send a Telegram message (use `--` before args if the message starts with `-`)")
+  .description(
+    "Send a Telegram message (use `--` before args if the message starts with `-`)",
+  )
   .argument("<chatId>", "Telegram chat ID")
   .argument("<message>", "Message text to send")
   .action(async (chatId: string, message: string) => {
